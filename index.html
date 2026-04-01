@@ -1016,73 +1016,73 @@ footer{margin-top:0!important;clear:both;}
 
 <script>
 // ══ PROTECCIÓN ANTI-CLONACIÓN — SUCESOS y MÁS ══
+// El sitio es PÚBLICO para todos los visitantes.
+// Solo bloquea si alguien COPIA el código y lo sube a OTRO dominio.
 (function(){
+
   // ── 1. Bloquear clic derecho ──
-  document.addEventListener('contextmenu',function(e){e.preventDefault();});
+  document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
 
   // ── 2. Bloquear arrastrar imágenes/texto ──
-  document.addEventListener('dragstart',function(e){e.preventDefault();});
+  document.addEventListener('dragstart', function(e){ e.preventDefault(); });
 
-  // ── 3. Bloquear teclas peligrosas ──
-  document.addEventListener('keydown',function(e){
-    if(e.key==='F12'){e.preventDefault();return false;}
-    if(e.ctrlKey&&['u','U','s','S','p','P'].includes(e.key)){e.preventDefault();return false;}
-    if(e.ctrlKey&&e.shiftKey&&['i','I','j','J','c','C','k','K'].includes(e.key)){e.preventDefault();return false;}
+  // ── 3. Bloquear teclas de código fuente ──
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'F12'){ e.preventDefault(); return false; }
+    if(e.ctrlKey && ['u','U','s','S','p','P'].includes(e.key)){ e.preventDefault(); return false; }
+    if(e.ctrlKey && e.shiftKey && ['i','I','j','J','c','C','k','K'].includes(e.key)){ e.preventDefault(); return false; }
   });
 
   // ── 4. Deshabilitar selección de texto (excepto inputs) ──
-  document.addEventListener('selectstart',function(e){
-    if(!['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))e.preventDefault();
+  document.addEventListener('selectstart', function(e){
+    if(!['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) e.preventDefault();
   });
 
   // ── 5. Marca de agua en consola ──
   setTimeout(function(){
     console.clear();
-    console.log('%c⛔ SITIO PROTEGIDO','background:#000;color:#00E676;font-size:24px;font-weight:bold;padding:10px 20px;');
-    console.log('%cSUCESOS y MÁS — Seguridad Electrónica & Telecomunicaciones','color:#aaa;font-size:13px;');
-    console.log('%cEste código es propiedad intelectual protegida. Reproducción no autorizada está prohibida por la Ley 64 de 2012 de Panamá.','color:#ff4444;font-size:11px;');
-  },500);
+    console.log('%c⛔ SUCESOS y MÁS — SITIO PROTEGIDO', 'background:#000;color:#00E676;font-size:20px;font-weight:bold;padding:10px 20px;');
+    console.log('%cSeguridad Electrónica & Telecomunicaciones — David, Chiriquí, Panamá', 'color:#aaa;font-size:12px;');
+    console.log('%cCódigo protegido por Ley 64 de 2012 de Propiedad Intelectual de Panamá.', 'color:#ff4444;font-size:11px;');
+  }, 800);
 
-  // ── 6. Detectar DevTools (sin bloquear el sitio) ──
-  var _dt = false;
-  setInterval(function(){
-    var t = new Date();
-    debugger;
-    if(new Date()-t > 100){
-      if(!_dt){
-        _dt = true;
-        console.warn('⚠️ Herramientas de desarrollador detectadas. Este sitio es propiedad de SUCESOS y MÁS.');
-      }
-    } else { _dt = false; }
-  }, 3000);
+  // ── 6. SOLO bloquear si el dominio es un CLON (diferente al oficial) ──
+  // Lógica: si hay un dominio real (no localhost/file) Y no es sucesosymas.com → es clon
+  var host  = window.location.hostname || '';
+  var proto = window.location.protocol || '';
 
-  // ── 7. Detectar si está en iframe (posible clonación) ──
-  if(window.top !== window.self){
-    try{
-      // Si está en iframe de dominio externo, mostrar aviso
-      var parentHost = window.top.location.hostname;
-      var allowed = ['sucesosymas.com','www.sucesosymas.com','claude.ai','anthropic.com'];
-      if(!allowed.some(function(d){return parentHost.includes(d);})){
-        document.body.innerHTML = '<div style="background:#000;color:#00E676;display:flex;align-items:center;justify-content:center;height:100vh;font-family:monospace;text-align:center;"><div><h2>⛔ Acceso no autorizado</h2><p style="color:#aaa">Visita directamente:<br/><a href="https://sucesosymas.com" style="color:#00E676;">sucesosymas.com</a></p></div></div>';
-      }
-    }catch(e){
-      // Cross-origin iframe — probablemente clonación
-      document.body.innerHTML = '<div style="background:#000;color:#00E676;display:flex;align-items:center;justify-content:center;height:100vh;font-family:monospace;text-align:center;"><div><h2>⛔ Sitio no autorizado</h2><p style="color:#aaa">Visita:<br/><a href="https://sucesosymas.com" style="color:#00E676;">sucesosymas.com</a></p></div></div>';
-    }
+  // Condiciones donde el sitio SIEMPRE debe funcionar normalmente:
+  var isLocal     = (proto === 'file:' || host === '' || host === 'localhost' || host === '127.0.0.1');
+  var isOfficial  = (host === 'sucesosymas.com' || host === 'www.sucesosymas.com');
+  var isPreview   = (host.includes('godaddy') || host.includes('myftpupload') ||
+                     host.includes('preview') || host.includes('staging') ||
+                     host.includes('claudeusercontent') || host.includes('anthropic') ||
+                     host.includes('claude.ai') || host.includes('netlify') ||
+                     host.includes('vercel') || host.includes('github.io') ||
+                     host.includes('000webhost') || host.includes('infinityfree'));
+
+  // Es clon solo si: tiene dominio real + no es oficial + no es entorno conocido de prueba
+  var isClon = (!isLocal && !isOfficial && !isPreview && host.length > 3);
+
+  if(isClon){
+    // Mostrar overlay SIN destruir el DOM
+    document.addEventListener('DOMContentLoaded', function(){
+      var ov = document.createElement('div');
+      ov.id = 'anti-clone-overlay';
+      ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.97);z-index:2147483647;display:flex;align-items:center;justify-content:center;font-family:monospace;text-align:center;';
+      ov.innerHTML = '<div style="max-width:420px;padding:30px;">'
+        + '<div style="font-size:3rem;margin-bottom:10px;">⛔</div>'
+        + '<h2 style="color:#fff;margin-bottom:10px;">Sitio No Autorizado</h2>'
+        + '<p style="color:#aaa;line-height:1.6;margin-bottom:16px;">Este sitio web es propiedad exclusiva de<br/>'
+        + '<strong style="color:#00E676;">SUCESOS y MÁS</strong><br/>'
+        + 'Seguridad Electrónica — Panamá</p>'
+        + '<p style="color:#aaa;margin-bottom:8px;">Visita el sitio oficial en:</p>'
+        + '<a href="https://sucesosymas.com" style="color:#00E676;font-size:1.3rem;font-weight:bold;text-decoration:none;">sucesosymas.com</a>'
+        + '</div>';
+      document.body.appendChild(ov);
+    });
   }
 
-  // ── 8. Verificar dominio (solo cuando está publicado, no en local) ──
-  var host = window.location.hostname;
-  var proto = window.location.protocol;
-  var isLocal = (proto==='file:'||host===''||host==='localhost'||host==='127.0.0.1');
-  var isAllowed = isLocal||host.includes('sucesosymas.com')||host.includes('claude.ai')||host.includes('anthropic');
-  if(!isAllowed){
-    // Overlay de aviso sin destruir el DOM
-    var ov = document.createElement('div');
-    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.97);z-index:999999;display:flex;align-items:center;justify-content:center;font-family:monospace;text-align:center;';
-    ov.innerHTML='<div><h1 style="color:#00E676;font-size:2rem;">⛔</h1><h2 style="color:#fff;">Sitio No Autorizado</h2><p style="color:#aaa;max-width:400px;">Este sitio web es propiedad exclusiva de<br/><strong style="color:#00E676;">SUCESOS y MÁS</strong><br/>Seguridad Electrónica — Panamá</p><p style="color:#aaa;">Dominio oficial:</p><a href="https://sucesosymas.com" style="color:#00E676;font-size:1.2rem;">sucesosymas.com</a></div>';
-    document.addEventListener('DOMContentLoaded',function(){document.body.appendChild(ov);});
-  }
 })();
 </script>
 
